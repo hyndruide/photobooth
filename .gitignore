@@ -1,0 +1,9 @@
+Lib/site-packages/
+Scripts/
+pyvenv.cfg
+*.pyc
+**/__pycache__/**
+.vscode/
+.venv/
+htmlcov/
+

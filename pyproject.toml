@@ -1,0 +1,16 @@
+[tool.poetry]
+name = "photobooth"
+version = "0.1.0"
+description = "photomaton device"
+authors = ["ulric"]
+
+[tool.poetry.dependencies]
+python = "^3.7"
+pygame = "^2.0.0"
+pygame-menu = "^3.3.2"
+
+[tool.poetry.dev-dependencies]
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
