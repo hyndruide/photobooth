@@ -8,8 +8,13 @@ authors = ["ulric"]
 python = "^3.7"
 pygame = "^2.0.0"
 pygame-menu = "^3.3.2"
+opencv-python = "^4.4.0"
+numpy = "1.19.3"
+
 
 [tool.poetry.dev-dependencies]
+pandas = "^1.1.5"
+lxml = "^4.6.2"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
