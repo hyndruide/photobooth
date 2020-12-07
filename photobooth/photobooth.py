@@ -4,7 +4,8 @@ import argparse
 import cv2
 import numpy as np
 import time
-from utils import paragraph, position
+from .utils import paragraph, position
+import pkg_resources
 
 pygame.init()
 os.environ['SDL_VIDEO_CENTERED'] = '1'
@@ -23,8 +24,9 @@ class photobooth:
         self.fenetre = pygame.display.set_mode(self.size_fenetre, display_flags)
         self.continuer = True
         self.colour_bg = [0, 0, 0]
-        self.normal_font = pygame.font.Font("./font/NittiGrotesk-ExtraBlack.otf", 150)
-        self.cta_font = pygame.font.Font("./font/NittiGrotesk-ExtraBlack.otf", 80)
+        font_file = pkg_resources.resource_filename("photobooth", "font/NittiGrotesk-ExtraBlack.otf")
+        self.normal_font = pygame.font.Font(font_file, 150)
+        self.cta_font = pygame.font.Font(font_file, 80)
         self.evolution = 0
         self.sequence = []
         self.cam_open = False
@@ -122,7 +124,8 @@ class photobooth:
 
 
     def ajout_du_logo(self):
-        watermark = cv2.imread('./logo/logo.png', cv2.IMREAD_UNCHANGED)
+        logo = pkg_resources.resource_filename("photobooth", "logo/logo.png")
+        watermark = cv2.imread(logo, cv2.IMREAD_UNCHANGED)
         (wH, wW) = watermark.shape[:2]
         (B, G, R, A) = cv2.split(watermark)
         B = cv2.bitwise_and(B, B, mask=A)
