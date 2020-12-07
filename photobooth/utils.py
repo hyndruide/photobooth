@@ -1,7 +1,7 @@
 import pygame
 
 
-def paragraph(text_string,font,color = (255,255,255), align = "left" ):
+def paragraph(text_string, font, color, align):
 	text_blit_array = []
 	text_array = text_string.splitlines()
 	width_total = 0
