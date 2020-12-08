@@ -236,6 +236,7 @@ class photobooth:
         self.start_ticks_reset=pygame.time.get_ticks()
 
     def sauver_photo(self):
+        self.photo = np.flip(self.photo, 1)
         timestr = time.strftime("%d-%m-%Y_%H%M%S")
         file = "PHOTO_" + timestr + ".jpg"
         cv2.imwrite(filename='./photo/' + file, img=self.photo)
