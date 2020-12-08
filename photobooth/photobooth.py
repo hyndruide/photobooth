@@ -30,11 +30,10 @@ class photobooth:
         self.evolution = 0
         self.sequence = []
         self.cam_open = False
-        self.camera = cv2.VideoCapture(0,cv2.CAP_DSHOW)
-        self.camera.set(cv2.CAP_PROP_FRAME_WIDTH,1280)
-        self.camera.set(cv2.CAP_PROP_FRAME_HEIGHT,720)
         self.countdown = False
         self.countdown_time = 5
+        self.reset_time = 20
+        
 
     def blit_window(self, what, v_align, h_align):
         target = self.fenetre
@@ -54,16 +53,20 @@ class photobooth:
     def afficher_cgv(self):
         self.fenetre.fill(self.colour_bg)
 
-        text = "LA PHOTO VA ETRE\nAJOUTÉE SUR FACEBOOK !\n\nSI VOUS NE LE SOUHAITEZ PAS\nFAITES LA AVEC VOTRE\nTÉLÉPHONE",
+        text = "LA PHOTO VA ETRE\nAJOUTÉE SUR FACEBOOK !\n\nSI VOUS NE LE SOUHAITEZ PAS\nFAITES LA AVEC VOTRE\nTÉLÉPHONE"
         cgv = paragraph(text, self.cta_font, WHITE, "center")
         self.blit_window(cgv, "center", "center")
 
         pygame.display.flip()
 
     def start_photo(self):
+        self.camera = cv2.VideoCapture(0,cv2.CAP_DSHOW)
+        self.camera.set(cv2.CAP_PROP_FRAME_WIDTH,1280)
+        self.camera.set(cv2.CAP_PROP_FRAME_HEIGHT,720)
         self.cam_open = True
 
     def stop_photo(self):
+        self.camera.release()
         self.cam_open = False
 
     def start_countdown(self):
@@ -76,8 +79,15 @@ class photobooth:
     def next_sequence(self):
         self.evolution = self.evolution + 1
         self.sequence[self.evolution]()
+        print(self.sequence[self.evolution].__func__.__name__)
 
-    def relancer(self):
+    def prev_sequence(self,step = 1):
+        self.evolution = self.evolution - step
+        self.sequence[self.evolution]()
+        print(self.sequence[self.evolution].__func__.__name__)
+
+    def relancer_sequence(self):
+        self.start_ticks_reset=pygame.time.get_ticks()
         self.evolution = 0
         self.sequence[self.evolution]()
 
@@ -136,7 +146,6 @@ class photobooth:
         self.photo = np.dstack([self.photo, np.ones((h, w), dtype="uint8") * 255])
         overlay = np.zeros((h, w, 4), dtype="uint8")
         overlay[h - wH - 10:h - 10, w - wW - 950:w - 950] = watermark
-        print("Resized...")
         self.photo = cv2.addWeighted(self.photo,1,overlay,1,0)
         self.photo = np.flip(self.photo, 1)
 
@@ -174,7 +183,7 @@ class photobooth:
 
         pygame.display.flip()
         time.sleep(5)
-        self.relancer()
+        self.relancer_sequence()
 
         
     def exit(self):
@@ -193,26 +202,42 @@ class photobooth:
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_a:
                     print("a")
+                    if self.sequence[self.evolution].__func__.__name__ == "afficher_rendu_photo":
+                        self.prev_sequence(2)
+                        self.next_sequence()
+                    else :
+                        if self.cam_open:
+                            self.stop_photo()
+                            self.stop_countdown()
+                        self.relancer_sequence()
+                        
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_z:
                     print("z")
                     self.next_sequence()
                     
- 
-
-
-    def game(self):
-        # self.sequence.append(self.afficher_welcome)
-        # self.sequence.append(self.afficher_cgv)
+    def load_sequence(self):
+        self.sequence.append(self.afficher_welcome)
+        self.sequence.append(self.afficher_cgv)
         self.sequence.append(self.start_photo)
         self.sequence.append(self.start_countdown)
         self.sequence.append(self.afficher_rendu_photo)
         self.sequence.append(self.afficher_remerciement)
         self.sequence[self.evolution]()
+
+    def game(self):
+        self.start_ticks_reset=pygame.time.get_ticks()
+        self.load_sequence()
         pygame.display.flip()
         while self.continuer:
+            seconds=(pygame.time.get_ticks()-self.start_ticks_reset)/1000 
+            time_left = self.reset_time - seconds
+            if time_left <0 and not self.cam_open:
+                print("reset")
+                self.relancer_sequence()
             if self.cam_open :
                 self.afficher_camera(self.countdown)
+
             self.events = pygame.event.get()
             self.event()
 
