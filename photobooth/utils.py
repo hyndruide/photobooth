@@ -47,7 +47,7 @@ def position(surf_base,surf_to_blit,v_align = "center",h_align = "center"):
 		h_pos = h_align
 	else:
 		if h_align == "top":
-			v_pos =  0
+			h_pos =  0
 		if h_align == "center":
 			h_pos =  int((surf_base.get_height() / 2) - (surf_to_blit.get_height() / 2))
 		if h_align == "center_top":

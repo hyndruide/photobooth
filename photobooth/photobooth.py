@@ -4,15 +4,17 @@ import argparse
 import cv2
 import numpy as np
 import time
+import threading
 from .utils import paragraph, position
 import pkg_resources
+from BoothClient.BoothClient import BoothClient
 
 pygame.init()
 os.environ['SDL_VIDEO_CENTERED'] = '1'
 
 WHITE = (255, 255, 255)
 ORANGE = (242, 101, 34)
-
+RED = (255, 0, 0)
 class photobooth:
     """docstring for ClassName"""
     def __init__(self, fullscreen):
@@ -27,18 +29,47 @@ class photobooth:
         font_file = pkg_resources.resource_filename("photobooth", "font/NittiGrotesk-ExtraBlack.otf")
         self.normal_font = pygame.font.Font(font_file, 150)
         self.cta_font = pygame.font.Font(font_file, 80)
+        self.error_font = pygame.font.Font(font_file, 50)
         self.evolution = 0
         self.sequence = []
         self.cam_open = False
         self.countdown = False
         self.countdown_time = 5
         self.reset_time = 20
+        self.api = BoothClient()
         
 
     def blit_window(self, what, v_align, h_align):
         target = self.fenetre
         target.blit(what, position(target, what, v_align, h_align))
 
+    def afficher_erreur(self,value_error):
+        self.fenetre.fill(self.colour_bg)
+        error = paragraph("il y a un probleme !", self.cta_font, RED, "center")
+        error_info = paragraph(str(value_error), self.error_font, RED, "center")
+        self.blit_window(error, "center", "top")
+        self.blit_window(error_info, "center", "center")
+        pygame.display.flip()
+
+    def afficher_connexion(self):
+        self.fenetre.fill(self.colour_bg)
+        if self.api.connect() == False:
+            try:
+                self.api.first_connect()
+            except Exception as error:
+                print(repr(error))
+                self.afficher_erreur(repr(error))
+            else :
+                info = paragraph("premiere connnexion !\nVeuillez vous rendre sur le site\nhttp:\\\\superphoto.fr\npour ajouter votre photobooth\navec le code : ", self.cta_font, WHITE, "center")
+                self.blit_window(info, "center", "top")
+                info = paragraph(self.api.req['user_code'], self.normal_font, ORANGE, "center")
+                self.blit_window(info, "center", 400)
+                pygame.display.flip()
+                
+                thread = threading.Thread(target=self.api.wait_first_connect)
+                thread.start()
+                # wait here for the result to be available before continuing
+                thread.join()
     def afficher_welcome(self):
         self.fenetre.fill(self.colour_bg)
 
@@ -90,6 +121,7 @@ class photobooth:
         self.start_ticks_reset=pygame.time.get_ticks()
         self.evolution = 0
         self.sequence[self.evolution]()
+        print(self.sequence[self.evolution].__func__.__name__)
 
     def afficher_camera(self):
         self.fenetre.fill(self.colour_bg)
@@ -223,16 +255,17 @@ class photobooth:
         self.sequence.append(self.start_countdown)
         self.sequence.append(self.afficher_rendu_photo)
         self.sequence.append(self.afficher_remerciement)
-        self.sequence[self.evolution]()
+
 
     def game(self):
-        self.start_ticks_reset=pygame.time.get_ticks()
+        self.afficher_connexion()
+        print("connexion OK")
         self.load_sequence()
-        pygame.display.flip()
+        self.relancer_sequence()
         while self.continuer:
             seconds=(pygame.time.get_ticks()-self.start_ticks_reset)/1000 
             time_left = self.reset_time - seconds
-            if time_left <0 and not self.cam_open:
+            if time_left <0 and not self.cam_open and not self.sequence[self.evolution].__func__.__name__ == "afficher_connexion" :
                 print("reset")
                 self.relancer_sequence()
             if self.cam_open :
