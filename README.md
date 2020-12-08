@@ -40,3 +40,7 @@ Pour connaitre les resolution possible:
 ```bash
 python testres.py
 ```
+
+Prochaine feature (creation d'un acces point)
+    - portage sur rapsberry pi
+    - https://github.com/Goblenus/pyaccesspoint

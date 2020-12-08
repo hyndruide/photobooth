@@ -66,7 +66,7 @@ class BoothClient:
                 if not r.ok:
                     raise ValueError(r.text)
                 self.req = r.json()
-        except requests.exceptions.ConnectionError as error:
+        except requests.exceptions.ConnectionError:
             raise ConnectionError("impossible de se connecter")
 
     def ask_first_connect(self):
@@ -95,11 +95,13 @@ class BoothClient:
         headers = {
             "Authorization": f"{self.token['token_type']} {self.token['access_token']}",
         }
-
-        with requests.post(url, headers=headers) as r:
-            if not r.ok:
-                raise ValueError(r.text)
-            return r.json()
+        try:
+            with requests.post(url, headers=headers) as r:
+                if not r.ok:
+                    raise ValueError(r.text)
+                return r.json()      
+        except requests.exceptions.ConnectionError:
+            raise ConnectionError("impossible de se connecter")
 
     def store_token(self, token):
         with open('setting', 'r') as f1:

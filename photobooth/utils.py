@@ -36,11 +36,11 @@ def paragraph(text_string, font, color, align):
 
 def position(surf_base,surf_to_blit,v_align = "center",h_align = "center"):
 	if v_align == "left":
-		v_pos =  0
+		v_pos =  10
 	if v_align == "center":
 		v_pos =  int((surf_base.get_width() / 2) - (surf_to_blit.get_width() / 2))
 	if v_align == "right":
-		v_pos =  int(surf_base.get_width() - surf_to_blit.get_width())
+		v_pos =  int(surf_base.get_width() - surf_to_blit.get_width()-10)
 
 
 	if type(h_align) == int:

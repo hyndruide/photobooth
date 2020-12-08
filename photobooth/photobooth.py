@@ -37,7 +37,8 @@ class photobooth:
         self.countdown_time = 5
         self.reset_time = 20
         self.api = BoothClient()
-        
+        self.ask_connection = False
+        self.counter_reset = True
 
     def blit_window(self, what, v_align, h_align):
         target = self.fenetre
@@ -51,26 +52,55 @@ class photobooth:
         self.blit_window(error_info, "center", "center")
         pygame.display.flip()
 
-    def afficher_connexion(self):
-        self.fenetre.fill(self.colour_bg)
-        if self.api.connect() == False:
-            try:
-                self.api.first_connect()
-            except Exception as error:
-                print(repr(error))
-                self.afficher_erreur(repr(error))
+
+    def connect_api(self):
+        self.counter_reset = False
+        try:
+            if self.api.connect() == False:
+                try:
+                    self.api.first_connect()
+                except Exception as error:
+                    print(repr(error))
+                    self.afficher_erreur(repr(error))
+                else :
+                    self.ask_connection = True
+                    self.afficher_auth_connexion()
+                    self.start_ticks_auth = pygame.time.get_ticks()
             else :
-                info = paragraph("premiere connnexion !\nVeuillez vous rendre sur le site\nhttp:\\\\superphoto.fr\npour ajouter votre photobooth\navec le code : ", self.cta_font, WHITE, "center")
-                self.blit_window(info, "center", "top")
-                info = paragraph(self.api.req['user_code'], self.normal_font, ORANGE, "center")
-                self.blit_window(info, "center", 400)
-                pygame.display.flip()
-                
-                thread = threading.Thread(target=self.api.wait_first_connect)
-                thread.start()
-                # wait here for the result to be available before continuing
-                thread.join()
+                self.validate_connexion()
+        except ConnectionError:
+            self.afficher_no_connexion()
+            del self.sequence[0]
+            self.evolution = -1
+
+
+    def afficher_no_connexion(self):
+        self.fenetre.fill(self.colour_bg)
+        info = paragraph("Pas de connexion internet\nles photos seront stocké\nelles seront envoyées\nà la prochaine connection", self.cta_font, WHITE, "center")
+        self.blit_window(info, "center", "top")
+        info = paragraph("appuyer à droite\npour passer", self.error_font, ORANGE, "center")
+        self.blit_window(info, "right", "bottom")
+        info = paragraph("appuyer à gauche\npour reconnecter", self.error_font, ORANGE, "left")
+        self.blit_window(info, "left", "bottom")
+        pygame.display.flip()
+
+    def afficher_auth_connexion(self):
+        self.fenetre.fill(self.colour_bg)
+        info = paragraph("premiere connnexion !\nVeuillez vous rendre sur le site\nhttp:\\\\superphoto.fr\npour ajouter votre photobooth\navec le code : ", self.cta_font, WHITE, "center")
+        self.blit_window(info, "center", "top")
+        info = paragraph(self.api.req['user_code'], self.normal_font, ORANGE, "center")
+        self.blit_window(info, "center", 400)
+        pygame.display.flip()
+
+    def validate_connexion(self):
+        self.ask_connection = False
+        del self.sequence[0]
+        self.sequence[self.evolution]()
+        self.restart_counter_reset()
+        self.counter_reset = True          
+
     def afficher_welcome(self):
+        self.counter_reset = True
         self.fenetre.fill(self.colour_bg)
 
         welcome = paragraph("UNE PETITE PHOTO\nDÉTECTIVE?", self.normal_font, WHITE, "center")
@@ -97,6 +127,7 @@ class photobooth:
         self.cam_open = True
 
     def stop_photo(self):
+        
         self.camera.release()
         self.cam_open = False
 
@@ -161,6 +192,7 @@ class photobooth:
                 self.photo = framecv
                 self.stop_countdown()
                 self.stop_photo()
+                self.restart_counter_reset()
                 self.next_sequence()
         pygame.display.flip()
 
@@ -200,20 +232,29 @@ class photobooth:
 
         pygame.display.flip()
 
+    def restart_counter_reset(self):
+        self.start_ticks_reset=pygame.time.get_ticks()
+
     def sauver_photo(self):
         timestr = time.strftime("%d-%m-%Y_%H%M%S")
         file = "PHOTO_" + timestr + ".jpg"
         cv2.imwrite(filename='./photo/' + file, img=self.photo)
+        return file
+
+    def send_photo(self,filename):
+        reponse = self.api.upload("./photo/"+filename)
+        if 'id' in reponse:
+            os.remove("./photo/"+filename)
 
     def afficher_remerciement(self):
-        self.sauver_photo()
         self.fenetre.fill(self.colour_bg)
-
         text = "MERCI POUR LA PHOTO !\n\nRECUPEREZ LA MARDI\nSUR FACEBOOK\n\nA LA PROCHAINE !"
         info = paragraph(text, self.cta_font, WHITE, "center")
         self.blit_window(info, "center", "center")
 
         pygame.display.flip()
+        filename = self.sauver_photo()
+        self.send_photo(filename)
         time.sleep(5)
         self.relancer_sequence()
 
@@ -222,6 +263,13 @@ class photobooth:
         print("this is end now")
         self.continuer = False     
         exit()
+
+    def upload_photos(self):
+        listeFichiers = []
+        for (rep, sousRep, fichiers) in os.walk("./photo/"):
+            listeFichiers.extend(fichiers)
+        for filename in listeFichiers:
+            self.send_photo(filename)
 
 
     def event(self):
@@ -249,6 +297,7 @@ class photobooth:
                     self.next_sequence()
                     
     def load_sequence(self):
+        self.sequence.append(self.connect_api)
         self.sequence.append(self.afficher_welcome)
         self.sequence.append(self.afficher_cgv)
         self.sequence.append(self.start_photo)
@@ -258,16 +307,25 @@ class photobooth:
 
 
     def game(self):
-        self.afficher_connexion()
-        print("connexion OK")
         self.load_sequence()
         self.relancer_sequence()
+        self.upload_photos()
         while self.continuer:
             seconds=(pygame.time.get_ticks()-self.start_ticks_reset)/1000 
-            time_left = self.reset_time - seconds
-            if time_left <0 and not self.cam_open and not self.sequence[self.evolution].__func__.__name__ == "afficher_connexion" :
+            time_left_reset = self.reset_time - seconds
+            if self.ask_connection :
+                seconds=(pygame.time.get_ticks()-self.start_ticks_auth)/1000 #calculate how many seconds
+                time_left_auth = self.api.req['interval'] - seconds
+                if time_left_auth < 0:
+                    if self.api.ask_first_connect() == False:
+                        self.validate_connexion()
+
+                    self.start_ticks_auth = pygame.time.get_ticks()
+                    self.restart_counter_reset()
+            if time_left_reset <0 and not self.cam_open and self.counter_reset :
                 print("reset")
                 self.relancer_sequence()
+                self.upload_photos()
             if self.cam_open :
                 self.afficher_camera()
 
