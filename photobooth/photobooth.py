@@ -4,10 +4,14 @@ import argparse
 import cv2
 import numpy as np
 import time
-from utils import paragraph, position
+from .utils import paragraph, position
+import pkg_resources
 
 pygame.init()
 os.environ['SDL_VIDEO_CENTERED'] = '1'
+
+WHITE = (255, 255, 255)
+ORANGE = (242, 101, 34)
 
 class photobooth:
     """docstring for ClassName"""
@@ -20,8 +24,9 @@ class photobooth:
         self.fenetre = pygame.display.set_mode(self.size_fenetre, display_flags)
         self.continuer = True
         self.colour_bg = [0, 0, 0]
-        self.normal_font = pygame.font.Font("./font/NittiGrotesk-ExtraBlack.otf", 150)
-        self.cta_font = pygame.font.Font("./font/NittiGrotesk-ExtraBlack.otf", 80)
+        font_file = pkg_resources.resource_filename("photobooth", "font/NittiGrotesk-ExtraBlack.otf")
+        self.normal_font = pygame.font.Font(font_file, 150)
+        self.cta_font = pygame.font.Font(font_file, 80)
         self.evolution = 0
         self.sequence = []
         self.cam_open = False
@@ -31,36 +36,28 @@ class photobooth:
         self.countdown = False
         self.countdown_time = 5
 
+    def blit_window(self, what, v_align, h_align):
+        target = self.fenetre
+        target.blit(what, position(target, what, v_align, h_align))
+
     def afficher_welcome(self):
         self.fenetre.fill(self.colour_bg)
-        text_welcome = paragraph(
-            "UNE PETITE PHOTO\nDÉTECTIVE?",
-            color = (255,255,255),
-            font = self.normal_font,
-            align = "center"
-            )
-        
-        text_cta = paragraph(
-            "Appuyer sur le pédalier",
-            font = self.cta_font,
-            align = "center"
-        )
 
-        self.fenetre.blit(text_welcome, position(self.fenetre,text_welcome,v_align = "center",h_align="center"))      
-        self.fenetre.blit(text_cta, position(self.fenetre,text_cta,v_align = "center",h_align="bottom"))
-        pygame.display.flip() 
+        welcome = paragraph("UNE PETITE PHOTO\nDÉTECTIVE?", self.normal_font, WHITE, "center")
+        self.blit_window(welcome, "center", "center")
 
+        cta = paragraph("Appuyer sur le pédalier", self.cta_font, WHITE, "center")
+        self.blit_window(cta, "center", "bottom")
+
+        pygame.display.flip()
 
     def afficher_cgv(self):
         self.fenetre.fill(self.colour_bg)
-        text_cgv = paragraph(
-            "LA PHOTO VA ETRE\nAJOUTÉE SUR FACEBOOK !\n\nSI VOUS NE LE SOUHAITEZ PAS\nFAITES LA AVEC VOTRE\nTÉLÉPHONE",
-            color = (255,255,255),
-            font = self.cta_font,
-            align = "center"
-            )
-        
-        self.fenetre.blit(text_cgv, position(self.fenetre,text_cgv,v_align = "center",h_align="center"))        
+
+        text = "LA PHOTO VA ETRE\nAJOUTÉE SUR FACEBOOK !\n\nSI VOUS NE LE SOUHAITEZ PAS\nFAITES LA AVEC VOTRE\nTÉLÉPHONE",
+        cgv = paragraph(text, self.cta_font, WHITE, "center")
+        self.blit_window(cgv, "center", "center")
+
         pygame.display.flip()
 
     def start_photo(self):
@@ -93,36 +90,30 @@ class photobooth:
         self.fenetre.blit(frame, (0,0))
         
         if countdown == False:
-            text_info = paragraph(
-            "APPUYER SUR LE PEDALIER\n POUR PRENDRE LA PHOTO",
-            color = (242, 101, 34),
-            font = self.cta_font,
-            align = "center"
-            )
-            self.fenetre.blit(text_info, position(self.fenetre,text_info,v_align = "center",h_align="bottom"))   
-            
+            text = "APPUYER SUR LE PEDALIER\n POUR PRENDRE LA PHOTO"
+            info = paragraph(text, self.cta_font, ORANGE, "center")
+            self.blit_window(info, "center", "bottom")
+
         else :
             seconds=(pygame.time.get_ticks()-self.start_ticks)/1000 #calculate how many seconds
-            if self.countdown_time - seconds > 0.8 : # if more than 10 seconds close the game
-                text = str(int(self.countdown_time - seconds))
-                if int(self.countdown_time - seconds) <= 1:
+
+            time_left = self.countdown_time - seconds
+
+            # TODO: on peut simplifier ce code
+            if time_left > 0.8:
+                if time_left <= 1:
                     text = "ATTENTION"
-                countdown_text = paragraph(
-                    text,
-                    color = (242, 101, 34),
-                    font = self.normal_font,
-                    align = "center"
-                )  
-                self.fenetre.blit(countdown_text, position(self.fenetre,countdown_text,v_align = "center",h_align="center"))  
-            elif self.countdown_time - seconds <= 0.8 and self.countdown_time - seconds > 0 : 
-                countdown_text = paragraph(
-                    "SOURIEZ",
-                    color = (242, 101, 34),
-                    font = self.normal_font,
-                    align = "center"
-                )
-            
-                self.fenetre.blit(countdown_text, position(self.fenetre,countdown_text,v_align = "center",h_align="center"))  
+                else:
+                    text = str(int(time_left))
+
+                p = paragraph(text, self.normal_font, ORANGE, "center")
+                self.blit_window(p, "center", "center")
+
+            elif time_left <= 0.8 and time_left > 0 :
+                text = "SOURIEZ"
+                p = paragraph(text, self.normal_font, ORANGE, "center")
+                self.blit_window(p, "center", "center")
+
             else:
                 print("prendre la photo")
                 self.photo = framecv
@@ -133,7 +124,8 @@ class photobooth:
 
 
     def ajout_du_logo(self):
-        watermark = cv2.imread('./logo/logo.png', cv2.IMREAD_UNCHANGED)
+        logo = pkg_resources.resource_filename("photobooth", "logo/logo.png")
+        watermark = cv2.imread(logo, cv2.IMREAD_UNCHANGED)
         (wH, wW) = watermark.shape[:2]
         (B, G, R, A) = cv2.split(watermark)
         B = cv2.bitwise_and(B, B, mask=A)
@@ -153,19 +145,18 @@ class photobooth:
         self.ajout_du_logo()
         border = pygame.Surface((960+20, 540+20))
         border.fill(pygame.Color(255,255,255))
-        self.fenetre.blit(border, position(self.fenetre,border,v_align = "center",h_align=20))
+        self.blit_window(border, "center", 20)
+
         frame = cv2.cvtColor(self.photo, cv2.COLOR_BGR2RGB)
         frame = np.rot90(frame)
         frame = cv2.resize(frame, dsize=(540,960), interpolation=cv2.INTER_CUBIC)
         frame = pygame.surfarray.make_surface(frame)
-        self.fenetre.blit(frame, position(self.fenetre,frame,v_align = "center",h_align=30))
-        info_text = paragraph(
-            "La photo vous plait ?",
-            color = (255, 255, 255),
-            font = self.cta_font,
-            align = "center"
-        )
-        self.fenetre.blit(info_text, position(self.fenetre,info_text,v_align = "center",h_align="bottom"))  
+        self.blit_window(frame, "center", 30)
+
+        text = "La photo vous plait ?"
+        info = paragraph(text, self.cta_font, WHITE, "center")
+        self.blit_window(info, "center", "bottom")
+
         pygame.display.flip()
 
     def sauver_photo(self):
@@ -176,13 +167,11 @@ class photobooth:
     def afficher_remerciement(self):
         self.sauver_photo()
         self.fenetre.fill(self.colour_bg)
-        info_text = paragraph(
-            "MERCI POUR LA PHOTO !\n\nRECUPEREZ LA MARDI\nSUR FACEBOOK\n\nA LA PROCHAINE !",
-            color = (255, 255, 255),
-            font = self.cta_font,
-            align = "center"
-        )
-        self.fenetre.blit(info_text, position(self.fenetre,info_text,v_align = "center",h_align="center"))  
+
+        text = "MERCI POUR LA PHOTO !\n\nRECUPEREZ LA MARDI\nSUR FACEBOOK\n\nA LA PROCHAINE !"
+        info = paragraph(text, self.cta_font, WHITE, "center")
+        self.blit_window(info, "center", "center")
+
         pygame.display.flip()
         time.sleep(5)
         self.relancer()
