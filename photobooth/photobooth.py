@@ -91,7 +91,7 @@ class photobooth:
         self.evolution = 0
         self.sequence[self.evolution]()
 
-    def afficher_camera(self,countdown = False):
+    def afficher_camera(self):
         self.fenetre.fill(self.colour_bg)
         ret, framecv = self.camera.read()    
         frame = cv2.cvtColor(framecv, cv2.COLOR_BGR2RGB)
@@ -99,7 +99,7 @@ class photobooth:
         frame = pygame.surfarray.make_surface(frame)
         self.fenetre.blit(frame, (0,0))
         
-        if countdown == False:
+        if self.countdown == False:
             text = "APPUYER SUR LE PEDALIER\n POUR PRENDRE LA PHOTO"
             info = paragraph(text, self.cta_font, ORANGE, "center")
             self.blit_window(info, "center", "bottom")
@@ -236,7 +236,7 @@ class photobooth:
                 print("reset")
                 self.relancer_sequence()
             if self.cam_open :
-                self.afficher_camera(self.countdown)
+                self.afficher_camera()
 
             self.events = pygame.event.get()
             self.event()
