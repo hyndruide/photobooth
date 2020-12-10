@@ -1,0 +1,14 @@
+{
+    "font": "NittiGrotesk-ExtraBlack.otf",
+    "font_size": {
+        "small": 50,
+        "normal": 80,
+        "big": 150
+    },
+    "colors": {
+        "BLACK": [0, 0, 0],
+        "ORANGE": [242, 101, 34],
+        "WHITE": [255, 255, 255],
+        "RED": [255, 0, 0]
+    }
+}

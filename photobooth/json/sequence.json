@@ -1,0 +1,57 @@
+{
+    "sequence": [{
+            "type": "screen_text",
+            "vue": "welcome",
+            "timer_reset": 10
+        },
+        {
+            "type": "screen_text",
+            "vue": "cgv",
+            "timer_reset": 10
+        },
+        {
+            "type": "camera",
+            "vue": "camera",
+            "always_update": true
+        },
+        {
+            "type": "camera",
+            "vue": "camera_timer",
+            "timer": 5,
+            "always_update": true
+        },
+        {
+            "type": "preview",
+            "vue": "preview",
+            "photo_size": [960, 540],
+            "photo_pos": ["center", 30],
+            "marge": [20, 20],
+            "marge_pos": ["center", 20],
+            "marge_color": "WHITE",
+            "logo": "logo/logo.png"
+        },
+        {
+            "type": "screen_text",
+            "vue": "thanks",
+            "timer_reset": 5
+        }
+    ],
+    "api": [{
+            "type": "screen_text",
+            "vue": "erreur",
+            "freeze": true
+        },
+        {
+            "type": "screen_text",
+            "vue": "pas_connexion",
+            "freeze": true
+        },
+        {
+            "type": "screen_text",
+            "vue": "auth",
+            "freeze": true
+        }
+    ]
+
+
+}

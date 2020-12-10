@@ -1,0 +1,130 @@
+{
+    "welcome": {
+        "bg": "BLACK",
+        "paragraphe": [{
+                "text": "UNE PETITE PHOTO\nDÉTECTIVE?",
+                "police": 1,
+                "align": "center",
+                "size": "big",
+                "position": ["center", "center"],
+                "color": "WHITE"
+            },
+            {
+                "text": "Appuyer sur le pédalier",
+                "police": 1,
+                "align": "center",
+                "size": "normal",
+                "position": ["center", "bottom"],
+                "color": "ORANGE"
+            }
+        ]
+    },
+    "cgv": {
+        "bg": "BLACK",
+        "paragraphe": [{
+            "text": "LA PHOTO VA ETRE\nAJOUTÉE SUR FACEBOOK !\n\nSI VOUS NE LE SOUHAITEZ PAS\nFAITES LA AVEC VOTRE\nTÉLÉPHONE",
+            "align": "center",
+            "size": "normal",
+            "position": ["center", "center"],
+            "color": "WHITE"
+        }]
+    },
+
+    "thanks": {
+        "bg": "BLACK",
+        "paragraphe": [{
+            "text": "MERCI POUR LA PHOTO !\n\nRECUPEREZ LA MARDI\nSUR FACEBOOK\n\nA LA PROCHAINE !",
+            "align": "center",
+            "size": "normal",
+            "position": ["center", "center"],
+            "color": "WHITE"
+        }]
+    },
+    "camera": {
+        "bg": "BLACK",
+        "paragraphe": [{
+            "text": "APPUYER SUR LE PEDALIER\n POUR PRENDRE LA PHOTO",
+            "align": "center",
+            "size": "normal",
+            "position": ["center", "bottom"],
+            "color": "ORANGE"
+        }]
+    },
+    "camera_timer": {
+        "bg": "BLACK",
+        "paragraphe": [{
+            "text": "{{timer}}",
+            "align": "center",
+            "size": "big",
+            "position": ["center", "center"],
+            "color": "ORANGE"
+        }]
+    },
+    "camera_wait": {
+        "bg": "BLACK",
+        "paragraphe": [{
+            "text": "Patientez",
+            "align": "center",
+            "size": "big",
+            "position": ["center", "center"],
+            "color": "ORANGE"
+        }]
+    },
+    "preview": {
+        "bg": "BLACK",
+        "paragraphe": [{
+            "text": "La photo vous plait ?",
+            "align": "center",
+            "size": "normal",
+            "position": ["center", "bottom"],
+            "color": "WHITE"
+        }]
+
+    },
+    "erreur": {
+        "bg": "BLACK",
+        "paragraphe": [{
+            "text": "Il y a un probleme",
+            "align": "center",
+            "size": "normal",
+            "position": ["center", "center"],
+            "color": "RED"
+        }, {
+            "text": "{{error}}",
+            "align": "center",
+            "size": "normal",
+            "position": ["center", "bottom"],
+            "color": "RED"
+        }]
+
+    },
+    "pas de connexion": {
+        "bg": "BLACK",
+        "paragraphe": [{
+            "text": "pas de connexion internet",
+            "align": "center",
+            "size": "normal",
+            "position": ["center", "center"],
+            "color": "ORANGE"
+        }]
+
+    },
+    "auth": {
+        "bg": "BLACK",
+        "paragraphe": [{
+            "text": "veuillez vous conneter\nà votre site\n{{site}}\nentrer le code",
+            "align": "center",
+            "size": "small",
+            "position": ["center", "top"],
+            "color": "ORANGE"
+        }, {
+            "text": "{{code}}",
+            "align": "center",
+            "size": "big",
+            "position": ["center", "center"],
+            "color": "ORANGE"
+        }]
+
+    }
+
+}

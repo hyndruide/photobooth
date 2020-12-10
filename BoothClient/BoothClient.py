@@ -83,10 +83,10 @@ class BoothClient:
 
             self.store_token(r.json())
             return False
-            
-    def wait_first_connect(self):
-        while self.ask_first_connect() :
-            time.sleep(self.req['interval'])
+
+    def wait_for_first_connect(self):
+        while self.ask_first_connect():
+            time.sleep(5)
 
     def connect(self):
         if self.update_token() is False:
