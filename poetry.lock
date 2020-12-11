@@ -80,29 +80,6 @@ optional = false
 python-versions = "*"
 
 [[package]]
-name = "pygame-menu"
-version = "3.3.2"
-description = "A menu for pygame, simple, lightweight and easy to use"
-category = "main"
-optional = false
-python-versions = ">=2.7, <4"
-
-[package.dependencies]
-pygame = ">=1.9.6"
-pyperclip = "*"
-
-[package.extras]
-doc = ["sphinx", "sphinx-rtd-theme"]
-
-[[package]]
-name = "pyperclip"
-version = "1.8.1"
-description = "A cross-platform clipboard module for Python. (Only handles plain text for now.)"
-category = "main"
-optional = false
-python-versions = "*"
-
-[[package]]
 name = "python-dateutil"
 version = "2.8.1"
 description = "Extensions to the standard Python datetime module"
@@ -163,7 +140,7 @@ socks = ["PySocks (>=1.5.6,!=1.5.7,<2.0)"]
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.7"
-content-hash = "ea3629a9c0058bf539370f861db985ac90e657a0db885bc42f63b5bf67e12181"
+content-hash = "5f303a19e4391f6e4d00082e077986ab591b57e6a484261ca26907963292b286"
 
 [metadata.files]
 certifi = [
@@ -344,13 +321,6 @@ pygame = [
     {file = "pygame-2.0.0-pp37-pypy37_pp73-manylinux2010_i686.whl", hash = "sha256:e8effa8b5a8d2bb9c07dccb18337b07174d4956516978a35350bc23e254189cc"},
     {file = "pygame-2.0.0-pp37-pypy37_pp73-manylinux2010_x86_64.whl", hash = "sha256:5a3f0f436174e95027c60a37f06d84d25d2275de3255fe85846baa47c0e36e6b"},
     {file = "pygame-2.0.0.tar.gz", hash = "sha256:63b038da116a643046181b02173fd894d87d2f85ecfd6aa7d5ece73c6ef501e9"},
-]
-pygame-menu = [
-    {file = "pygame-menu-3.3.2.tar.gz", hash = "sha256:58cf8714f09b3a48cf576839e71a5bd7fbb326597d33e639f377f1ab85ac97fc"},
-    {file = "pygame_menu-3.3.2-py2.py3-none-any.whl", hash = "sha256:4d7a5edaba03bf7dc3ea277fb507d7edff931170a80935f23110ae6ddf631a80"},
-]
-pyperclip = [
-    {file = "pyperclip-1.8.1.tar.gz", hash = "sha256:9abef1e79ce635eb62309ecae02dfb5a3eb952fa7d6dce09c1aef063f81424d3"},
 ]
 python-dateutil = [
     {file = "python-dateutil-2.8.1.tar.gz", hash = "sha256:73ebfe9dbf22e832286dafa60473e4cd239f8592f699aa5adaf10050e6e1823c"},
