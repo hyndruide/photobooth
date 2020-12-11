@@ -2,8 +2,14 @@ import cv2
 import numpy as np
 import pkg_resources
 import time
+import os
+import json
 
-def ajout_du_logo(photo,logo):
+def ajout_du_logo(photo):
+    if os.path.isfile('./photobooth/json/settings.json'):
+        with open('./photobooth/json/settings.json', 'r') as f1:
+            data = json.load(f1)
+    logo = data['logo']
     logo = pkg_resources.resource_filename("photobooth", logo)
     watermark = cv2.imread(logo, cv2.IMREAD_UNCHANGED)
     (wH, wW) = watermark.shape[:2]

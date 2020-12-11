@@ -83,8 +83,7 @@
         "photo_pos": ["center", 30],
         "marge": [20, 20],
         "marge_pos": ["center", 20],
-        "marge_color": "WHITE",
-        "logo": "logo/logo.png"
+        "marge_color": "WHITE"
 
     },
     "erreur": {

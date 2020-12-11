@@ -15,7 +15,7 @@ class Preview(Vue):
     def load_render(self,screen):
         self.screen_name = screen["vue"]
         self.template.load(self.screen_name)
-        self.photo = ajout_du_logo(self.photo,self.template.path_logo)
+        self.photo = ajout_du_logo(self.photo)
         self._done = False
 
     def make_render(self):
