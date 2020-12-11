@@ -20,6 +20,8 @@ class Template:
             return data['colors']
 
     def get_color(self,color):
+        if color not in self.colors_panel:
+            return color
         return (self.colors_panel[color][0],self.colors_panel[color][1],self.colors_panel[color][2])
 
     def _get_background_color(self):
@@ -29,6 +31,17 @@ class Template:
         self.template_vue = self.template_data[data]
         self.background = self._get_background_color()
         self.paragraphe = self.template_vue['paragraphe']
+        if "photo_size" and "marge" in self.template_vue:
+            self.marge_size = (self.template_vue["photo_size"][0]+self.template_vue["marge"][0],self.template_vue["photo_size"][1]+self.template_vue["marge"][1])
+            self.photo_size = (self.template_vue["photo_size"][0],self.template_vue["photo_size"][1])
+        if "marge_color" in self.template_vue:           
+            self.marge_color = self.get_color(self.template_vue["marge_color"])
+        if "marge_pos" in self.template_vue:
+            self.marge_pos = (self.template_vue["marge_pos"][0],self.template_vue["marge_pos"][1])
+        if "photo_pos" in self.template_vue:
+            self.photo_pos = (self.template_vue["photo_pos"][0],self.template_vue["photo_pos"][1])
+        if "logo" in self.template_vue:
+            self.path_logo= self.template_vue["logo"]
 
     def gen_para(self):
         value = {}

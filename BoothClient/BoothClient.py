@@ -104,16 +104,16 @@ class BoothClient:
             raise ConnectionError("impossible de se connecter")
 
     def store_token(self, token):
-        with open('setting', 'r') as f1:
+        with open('./photobooth/json/key', 'r') as f1:
             setting_file = json.load(f1)
         setting_file['token'] = token
-        with open('setting', 'w') as f1:
+        with open('./photobooth/json/key', 'w') as f1:
             json.dump(setting_file, f1)
         self.update_token()
 
     def _get_token(self):
-        if os.path.isfile('setting'):
-            with open('setting', 'r') as f1:
+        if os.path.isfile('./photobooth/json/key'):
+            with open('./photobooth/json/key', 'r') as f1:
                 setting_file = json.load(f1)
                 if 'token' not in setting_file:
                     return None
@@ -122,12 +122,12 @@ class BoothClient:
             return None
 
     def _get_client_id(self):
-        if os.path.isfile('setting'):
-            with open('setting', 'r') as f1:
+        if os.path.isfile('./photobooth/json/key'):
+            with open('./photobooth/json/key', 'r') as f1:
                 client_id_value = json.load(f1)['client_id']
         else:
             client_id = {"client_id": "Bfut4sKXqR11KgNbxe4wXw2PF2nJAI4S"}
-            with open('setting', 'w') as f1:
+            with open('./photobooth/json/key', 'w') as f1:
                 json.dump(client_id, f1)
             client_id_value = client_id["client_id"]
         return client_id_value

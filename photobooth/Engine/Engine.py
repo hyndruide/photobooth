@@ -31,6 +31,7 @@ class Engine:
         self.client.start()
         self.var = None
         self.state = 0
+
         
 
     def _load_engine_file(self):
@@ -38,6 +39,7 @@ class Engine:
             self.data = json.load(file)
         self.sequence = self.data['sequence']
         self.sequence_api = self.data['api']
+        
     @property
     def state(self):
         return self._state
@@ -123,7 +125,6 @@ class Engine:
             self._restart()
 
     def runtime(self):
-        
         self._check_timer()
         self._check_status_vue()
         self.camera.runtime()

@@ -4,15 +4,7 @@ from photobooth.utils import make_paragraphe, position
 import re
 
 class Vue:
-    """
-    * surface +
-    * couleur de fond
-    * event :
-    *   next
-    * 2 texte
-    * le compteur reset
-    * temps du reset
-    """
+    ''' Class permetant d'afficher les Vue dans l'engine '''
     def __init__(self, parent_surface,font = Fonts()):
         self.template = Template()
         self.parent_surface = parent_surface
@@ -27,6 +19,13 @@ class Vue:
         target.blit(what, position(target, what, v_align, h_align))
 
     def set_var(self,var):
+        ''' Recupere les variable ajouter dans le text
+
+        Parameters:
+        var (array): un array de tuple [(nom de la variable, contenu),...]
+
+        '''
+        
         self.var = var
 
     def replace(self,phrase,variable_tab):
@@ -38,19 +37,17 @@ class Vue:
         return phrase
 
                 
-    def load_var(self,phrase,var):
-        
-        if var != None :
-            return self.replace(phrase,var)
-        elif self.var !=None:
+    def load_var(self,phrase):
+        if self.var !=None:
             return self.replace(phrase,self.var)
         else :
             return phrase
 
-    def make_render_text(self,var = None):
+    def make_render_text(self):
+        ''' cree les ligne de texte grace aux template'''
         generateur_paragraphe = self.template.gen_para()
         for paragraphe in generateur_paragraphe:
-            phrase = self.load_var(paragraphe['text'],var)
+            phrase = self.load_var(paragraphe['text'])
             vue_paragraphe = make_paragraphe(phrase, self.font.get_font(paragraphe['size']), paragraphe['color'], paragraphe['align'])
             self._blit_surface(vue_paragraphe,paragraphe['pos'] )
 

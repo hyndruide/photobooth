@@ -10,7 +10,7 @@ class Camera(Vue):
         Vue.__init__(self,parent_surface,font)
         self.tick =0
         self._start_timer = False
-        self.camera = VideoCaptureThreading(0,1280,720)
+        self.camera = VideoCaptureThreading()
 
     def set_timer(self,timer=5):
         self.timer = timer
@@ -60,7 +60,8 @@ class Camera(Vue):
             frame = pygame.surfarray.make_surface(frame)
             self.parent_surface.blit(frame, (0,0))
             if self.screen_name == "camera_timer":
-                self.make_render_text([("timer",self.countdown)])
+                self.var = [("timer",self.countdown)]
+                self.make_render_text()
             else:
                 self.make_render_text()
 

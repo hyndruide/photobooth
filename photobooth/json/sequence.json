@@ -22,13 +22,7 @@
         },
         {
             "type": "preview",
-            "vue": "preview",
-            "photo_size": [960, 540],
-            "photo_pos": ["center", 30],
-            "marge": [20, 20],
-            "marge_pos": ["center", 20],
-            "marge_color": "WHITE",
-            "logo": "logo/logo.png"
+            "vue": "preview"
         },
         {
             "type": "screen_text",

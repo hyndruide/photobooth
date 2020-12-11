@@ -7,7 +7,7 @@
                 "align": "center",
                 "size": "big",
                 "position": ["center", "center"],
-                "color": "WHITE"
+                "color": "ORANGE"
             },
             {
                 "text": "Appuyer sur le pédalier",
@@ -78,7 +78,13 @@
             "size": "normal",
             "position": ["center", "bottom"],
             "color": "WHITE"
-        }]
+        }],
+        "photo_size": [960, 540],
+        "photo_pos": ["center", 30],
+        "marge": [20, 20],
+        "marge_pos": ["center", 20],
+        "marge_color": "WHITE",
+        "logo": "logo/logo.png"
 
     },
     "erreur": {

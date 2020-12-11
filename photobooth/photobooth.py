@@ -27,11 +27,9 @@ def main():
                     engine.stop()
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_a:
-                    print("a")
                     engine.prev()
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_z:
-                    print("z")
                     engine.next()
 
 if __name__ == '__main__':

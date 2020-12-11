@@ -1,0 +1,8 @@
+{
+"camera":
+    {    
+        "camera_device": 0,
+        "camera_res": [1280,720],
+        "camera_backend": "cv2.CAP_DSHOW"
+    }
+}
