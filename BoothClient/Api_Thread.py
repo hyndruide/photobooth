@@ -34,15 +34,17 @@ class Api_tread(Thread):
 
     def upload_photos(self):
         listeFichiers = []
-        for (rep, sousRep, fichiers) in os.walk("./photo/"):
-            listeFichiers.extend(fichiers)
+        for (rep, sousReps, fichiers) in os.walk("./photo/"):
+            for fichier in fichiers:
+                listeFichiers.append(os.path.join(rep, fichier))
+            
         for filename in listeFichiers:
             self.send_photo(filename)
 
-    def send_photo(self,filename):
-        reponse = self.api.upload("./photo/"+filename)
+    def send_photo(self, filename):
+        reponse = self.api.upload(filename)
         if 'id' in reponse:
-            os.remove("./photo/"+filename)
+            os.remove(filename)
 
     def flag_connect(self):
         return self._flag_connect 
