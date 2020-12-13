@@ -8,5 +8,6 @@ pyvenv.cfg
 htmlcov/
 
 # runtime
-*/photo/*
+photo/*
 setting
+photobooth/json/key

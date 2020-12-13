@@ -62,12 +62,14 @@ class BoothClient:
             "client_id": self.client_id,
         }
         try:
-            with requests.post(url, data=data) as r:
+            with requests.post(url, data=data, timeout=0.2) as r:
                 if not r.ok:
                     raise ValueError(r.text)
                 self.req = r.json()
         except requests.exceptions.ConnectionError:
             raise ConnectionError("impossible de se connecter")
+        except requests.exceptions.Timeout:
+            raise RetryError()
 
     def ask_first_connect(self):
         url = f"{self.url}/photobooth/wait"
@@ -83,10 +85,10 @@ class BoothClient:
 
             self.store_token(r.json())
             return False
-            
-    def wait_first_connect(self):
-        while self.ask_first_connect() :
-            time.sleep(self.req['interval'])
+
+    def wait_for_first_connect(self):
+        while self.ask_first_connect():
+            time.sleep(5)
 
     def connect(self):
         if self.update_token() is False:
@@ -104,16 +106,16 @@ class BoothClient:
             raise ConnectionError("impossible de se connecter")
 
     def store_token(self, token):
-        with open('setting', 'r') as f1:
+        with open('./photobooth/json/key', 'r') as f1:
             setting_file = json.load(f1)
         setting_file['token'] = token
-        with open('setting', 'w') as f1:
+        with open('./photobooth/json/key', 'w') as f1:
             json.dump(setting_file, f1)
         self.update_token()
 
     def _get_token(self):
-        if os.path.isfile('setting'):
-            with open('setting', 'r') as f1:
+        if os.path.isfile('./photobooth/json/key'):
+            with open('./photobooth/json/key', 'r') as f1:
                 setting_file = json.load(f1)
                 if 'token' not in setting_file:
                     return None
@@ -122,12 +124,12 @@ class BoothClient:
             return None
 
     def _get_client_id(self):
-        if os.path.isfile('setting'):
-            with open('setting', 'r') as f1:
+        if os.path.isfile('./photobooth/json/key'):
+            with open('./photobooth/json/key', 'r') as f1:
                 client_id_value = json.load(f1)['client_id']
         else:
             client_id = {"client_id": "Bfut4sKXqR11KgNbxe4wXw2PF2nJAI4S"}
-            with open('setting', 'w') as f1:
+            with open('./photobooth/json/key', 'w') as f1:
                 json.dump(client_id, f1)
             client_id_value = client_id["client_id"]
         return client_id_value
