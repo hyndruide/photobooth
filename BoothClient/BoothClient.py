@@ -62,12 +62,14 @@ class BoothClient:
             "client_id": self.client_id,
         }
         try:
-            with requests.post(url, data=data) as r:
+            with requests.post(url, data=data, timeout=0.2) as r:
                 if not r.ok:
                     raise ValueError(r.text)
                 self.req = r.json()
         except requests.exceptions.ConnectionError:
             raise ConnectionError("impossible de se connecter")
+        except requests.exceptions.Timeout:
+            raise RetryError()
 
     def ask_first_connect(self):
         url = f"{self.url}/photobooth/wait"

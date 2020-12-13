@@ -3,7 +3,10 @@ import json
 from photobooth.Engine.Vue.Vue import Vue
 from photobooth.Engine.Camera.Camera import Camera
 from photobooth.Engine.Camera.Preview import Preview
-from BoothClient.Api_Thread import Api_tread
+from photobooth.Engine.Vue.Fonts import Fonts
+from photobooth.Engine.Vue.Template import Templates_Collection
+from BoothClient.Api_Thread import Api
+from threading import Thread
 import numpy
 
 #TODO 
@@ -20,26 +23,23 @@ import numpy
 
 class Engine:
     def __init__(self,surface):
+        self.fonts = Fonts()
         self.surface = surface
         self.running = True
         self._load_engine_file()
         self._need_update = False
-        self.client = Api_tread()
-        self.vue = Vue(self.surface)
-        self.camera = Camera(self.surface)
-        self.preview = Preview(self.surface)
-        self.client.start()
+        self.api = Api()
+        self.templates_collection = Templates_Collection()
+        self.thread_api = Thread(target=self.api.connect)
         self.var = None
         self.state = 0
-
-        
 
     def _load_engine_file(self):
         with open('photobooth/json/sequence.json', 'r',encoding='utf-8') as file:
             self.data = json.load(file)
-        self.sequence = self.data['sequence']
-        self.sequence_api = self.data['api']
-        
+        self.sequences = self.data['sequence']
+        self.sequences_api = self.data['api']
+
     @property
     def state(self):
         return self._state
@@ -49,13 +49,17 @@ class Engine:
         self._state = value
         if self._state <= 0:
             self._state = 0
-        if self._state >= len(self.sequence)-1:
-            self._state = len(self.sequence)-1
+        if self._state >= len(self.sequences)-1:
+            self._state = len(self.sequences)-1
         self._prerender()
 
     def _prerender(self,sequence = None):
+
         if sequence == None:
-            sequence = self.sequence[self.state]
+            sequence = self.sequences[self.state]
+
+        template = self.templates_collection.load(sequence["vue"])
+
         self._launch_timer()
         self.type = sequence['type']
         self.screen_sequence = sequence
@@ -67,15 +71,18 @@ class Engine:
             self.always_update = sequence['always_update']
         else:
             self.always_update = False
+
         if self.type == "screen_text":
-            self.screen = self.vue
-            self.screen.set_var(self.var)
+            vue = Vue(self.surface,template,self.fonts)
+            vue.set_var(self.var)
             self.var = None
         elif self.type == "camera":
-            self.screen = self.camera
+            vue = Camera(self.surface,template,self.fonts)
         elif self.type == "preview":
-            self.screen = self.preview
-            self.screen.load_photo(self.screen_data)
+            vue = Preview(self.surface,template,self.fonts)
+            vue.load_photo(self.screen_data)
+
+        self.screen = vue
         self.screen.load_render(self.screen_sequence)
         self._need_update = True
 
@@ -96,7 +103,8 @@ class Engine:
         if self.screen.is_done() :
             self.screen_data = self.screen.get_data()
             if type(self.screen_data) == str:
-                 self.client.send_photo(self.screen_data)
+                thread = Thread(target=self.api.send_photo, args=("./photo/" + self.screen_data,), daemon=True)
+                thread.start()
             self.state = self.state + 1
 
     def _check_timer(self):
@@ -113,22 +121,17 @@ class Engine:
         if self.screen.prev():
              self.state = self.state - 1
 
-    def _check_status_client(self):
-        if self.client.flag_error():
-            self.var = [("error",str(self.client.get_error()))]
-            self._prerender(self.sequence_api[0])
-        if self.client.flag_auth():
-            self.var = [("site",self.client.get_site()),("code",self.client.get_user_code())]
-            self._prerender(self.sequence_api[2])
-        if self.client.flag_connect():
-            self.client.shut_flag_connect()
-            self._restart()
+    def _check_status_api(self):
+        if self.api.error :
+            self.var = [("error",self.api.error)]
+            self._prerender(self.self.sequences_api["error"])
+
 
     def runtime(self):
         self._check_timer()
         self._check_status_vue()
-        self.camera.runtime()
-        self._check_status_client()
+        self.screen.runtime()
+        self._check_status_api()
         self._render()
   
     def is_runnig(self):
@@ -137,5 +140,3 @@ class Engine:
     def stop(self):
         self.screen.stop()
         self.running = False
-
-

@@ -30,22 +30,23 @@
             "timer_reset": 5
         }
     ],
-    "api": [{
+    "api": {
+        "error": {
             "type": "screen_text",
             "vue": "erreur",
             "freeze": true
         },
-        {
+        "Pas_connexion": {
             "type": "screen_text",
             "vue": "pas_connexion",
             "freeze": true
         },
-        {
+        "need_auth": {
             "type": "screen_text",
             "vue": "auth",
             "freeze": true
         }
-    ]
+    }
 
 
 }

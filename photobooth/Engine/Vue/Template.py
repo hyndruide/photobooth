@@ -1,10 +1,11 @@
 import json
 import os
+from photobooth.Engine.Vue import colors
+import re
 
-class Template:
+class Templates_Collection:
     """ charge les template """
     def __init__(self):
-        self.colors_panel = self._get_colors_panel()
         self.template_data  = self._load_template_file()
         
     def _load_template_file(self):
@@ -13,57 +14,64 @@ class Template:
                 data = json.load(file)
             return data
 
-    def _get_colors_panel(self):
-        if os.path.isfile('photobooth/json/font.json'):
-            with open('photobooth/json/font.json','r') as file:
-                data = json.load(file)
-            return data['colors']
+    def load(self, template_name):
+        # faire des trucs
+        template_vue = self.template_data[template_name]
 
-    def get_color(self,color):
-        if color not in self.colors_panel:
-            return color
-        return (self.colors_panel[color][0],self.colors_panel[color][1],self.colors_panel[color][2])
+        # TODO: abstraction
+        if "photo_size" in template_vue:
+            template = PreviewTemplate(template_vue)
+        else:
+            template = Template(template_vue)
+        return template
 
-    def _get_background_color(self):
-        background = "BLACK"
-        if "bg" and "marge" in self.template_vue:
-            background = self.template_vue['bg']
-        return self.colors_panel[background]
 
-    def load(self,data):
-        self.template_vue = self.template_data[data]
-        self.background = self._get_background_color()
-        self.paragraphe = ''
-        if "paragraphe" in self.template_vue:
-            self.paragraphe = self.template_vue['paragraphe']
-        if "photo_size" and "marge" in self.template_vue:
-            self.marge_size = (self.template_vue["photo_size"][0]+self.template_vue["marge"][0],self.template_vue["photo_size"][1]+self.template_vue["marge"][1])
-            self.photo_size = (self.template_vue["photo_size"][0],self.template_vue["photo_size"][1])
-        if "marge_color" in self.template_vue:           
-            self.marge_color = self.get_color(self.template_vue["marge_color"])
-        if "marge_pos" in self.template_vue:
-            self.marge_pos = (self.template_vue["marge_pos"][0],self.template_vue["marge_pos"][1])
-        if "photo_pos" in self.template_vue:
-            self.photo_pos = (self.template_vue["photo_pos"][0],self.template_vue["photo_pos"][1])
+DEFAULT_TEMPLATE = {
+    "bg": "BLACK",
+    "paragraphe": []
+}
 
-    def gen_para(self):
+class Template:
+    def __init__(self, conf):
+        t = {}
+        t.update(**DEFAULT_TEMPLATE)
+        t.update(**conf)
+
+        self.background = colors.get(t['bg'])
+        self.paragraphe = t['paragraphe']
+
+    def gen_para(self, var):
         value = {}
         for para in self.paragraphe:
-            value['text'] = para['text']
+            value['text'] = replace(para['text'], var)
             value['size'] = para['size']
-            value['color'] =  self.get_color(para['color'])
-            value['align'] =  para['align']
+            value['color'] = colors.get(para['color'])
+            value['align'] = para['align']
             value['pos'] =  (para['position'][0],para['position'][1])
             yield value
 
 
-            
-        
+def replace(phrase, variable_tab):
+    if variable_tab is None:
+        variable_tab = []
+
+    for variable in variable_tab:
+        var,text = variable
+        regex = re.search(r"{{(.*)}}",phrase)
+        if bool(regex) and var == regex.group(1):
+            phrase = phrase.replace(regex.group(0), text)
+    return phrase
 
 
+class PreviewTemplate(Template):
+    def __init__(self, conf):
+        super().__init__(conf)
 
+        size = tuple(conf["photo_size"])
+        marge = tuple(conf["marge"])
 
-
-
-        
-        
+        self.photo_size = size
+        self.marge_size = (size[0] + marge[0], size[1] + marge[1])
+        self.marge_color = colors.get(conf["marge_color"])
+        self.marge_pos = tuple(conf["marge_pos"])
+        self.photo_pos = tuple(conf["photo_pos"])

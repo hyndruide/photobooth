@@ -6,8 +6,8 @@ from photobooth.Engine.Vue.Fonts import Fonts
 from photobooth.Engine.Vue.Vue import Vue
 
 class Camera(Vue):
-    def __init__(self,parent_surface,font = Fonts()):
-        Vue.__init__(self,parent_surface,font)
+    def __init__(self,*args,**kwargs):
+        Vue.__init__(self,*args,**kwargs)
         self.tick =0
         self._start_timer = False
         self.camera = VideoCaptureThreading()
@@ -48,12 +48,11 @@ class Camera(Vue):
         if self.screen_name == "camera_timer":
             self.set_timer(screen["timer"])
             self.start_timer()
-        self.template.load(self.screen_name)
         self._done = False
 
     def make_render(self):
         if self.camera.started:
-            self.template.load(self.screen_name)
+
             _, self.framecv = self.camera.read()    
             frame = cv2.cvtColor(self.framecv, cv2.COLOR_BGR2RGB)
             frame = np.rot90(frame)

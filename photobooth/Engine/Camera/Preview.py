@@ -6,15 +6,14 @@ from photobooth.Engine.Vue.Vue import Vue
 from photobooth.utils_image import ajout_du_logo, save_photo
 
 class Preview(Vue):
-    def __init__(self,parent_surface,font = Fonts()):
-        Vue.__init__(self,parent_surface,font)
+    def __init__(self,*args,**kwargs):
+        Vue.__init__(self,*args,**kwargs)
 
     def load_photo(self,photo):
         self.photo = photo
    
     def load_render(self,screen):
         self.screen_name = screen["vue"]
-        self.template.load(self.screen_name)
         self.photo = ajout_du_logo(self.photo)
         self._done = False
 
