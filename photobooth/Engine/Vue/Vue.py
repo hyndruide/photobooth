@@ -4,13 +4,15 @@ from photobooth.utils import make_paragraphe, position
 
 class Vue:
     ''' Class permetant d'afficher les Vue dans l'engine '''
-    def __init__(self, parent_surface, template ,font):
+    def __init__(self, parent_surface, template ,font,camera = None):
         self.template = template
         self.parent_surface = parent_surface
         self.font = font
         self._done = False
         self.var=None
         self.freeze = False
+        self.old_phrase =  ''
+        self.camera = camera
 
     def _blit_surface(self,what, pos):
         v_align, h_align = pos
@@ -32,13 +34,17 @@ class Vue:
         ''' cree les ligne de texte grace aux template'''
         generateur_paragraphe = self.template.gen_para(self.var)
         for paragraphe in generateur_paragraphe:
-            vue_paragraphe = make_paragraphe(
-                paragraphe["text"],
-                self.font.get_font(paragraphe['size']),
-                paragraphe['color'],
-                paragraphe['align']
-            )
-            self._blit_surface(vue_paragraphe,paragraphe['pos'] )
+            if self.old_phrase != paragraphe["text"]:
+                vue_paragraphe = make_paragraphe(
+                    paragraphe["text"],
+                    self.font.get_font(paragraphe['size']),
+                    paragraphe['color'],
+                    paragraphe['align']
+                )
+                self.vue_pos = paragraphe['pos']
+                self._blit_surface(vue_paragraphe,self.vue_pos)
+            else:
+                self._blit_surface(vue_paragraphe,self.vue_pos)
 
     def make_render(self):
         self.parent_surface.fill(self.template.background)

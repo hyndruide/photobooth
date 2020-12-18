@@ -1,16 +1,14 @@
-import cv2
-from .Capture import VideoCaptureThreading
-import numpy as np
 import pygame
+import pygame.camera
 from photobooth.Engine.Vue.Fonts import Fonts
 from photobooth.Engine.Vue.Vue import Vue
 
 class Camera(Vue):
     def __init__(self,*args,**kwargs):
         Vue.__init__(self,*args,**kwargs)
+        pygame.camera.init()
         self.tick =0
         self._start_timer = False
-        self.camera = VideoCaptureThreading()
 
     def set_timer(self,timer=5):
         self.timer = timer
@@ -26,7 +24,6 @@ class Camera(Vue):
             if self.time_left < 0:
                 self.take_photo()
                 self._start_timer = False
-                self.stop_camera() 
                 self.next()  
                 
             elif self.time_left <= 0.8 and self.time_left > 0:
@@ -37,26 +34,23 @@ class Camera(Vue):
                 self.countdown = str(int(self.time_left))
 
     def take_photo(self):
-        self.photo = self.framecv
+        self.photo = self.camera.get_image()
 
-    def stop_camera(self):
-        self.camera.stop()
 
     def load_render(self,screen):
+        if not self.camera.query_image():
+            print('yop')
+            self.camera.start()
+            self.camera.set_controls(hflip = True, vflip = False)
         self.screen_name = screen["vue"]
-        self.camera.start()
         if self.screen_name == "camera_timer":
             self.set_timer(screen["timer"])
             self.start_timer()
         self._done = False
 
     def make_render(self):
-        if self.camera.started:
-
-            _, self.framecv = self.camera.read()    
-            frame = cv2.cvtColor(self.framecv, cv2.COLOR_BGR2RGB)
-            frame = np.rot90(frame)
-            frame = pygame.surfarray.make_surface(frame)
+        if self.camera.query_image():
+            frame = self.camera.get_image()
             self.parent_surface.blit(frame, (0,0))
             if self.screen_name == "camera_timer":
                 self.var = [("timer",self.countdown)]

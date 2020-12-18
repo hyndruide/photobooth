@@ -31,8 +31,10 @@ class Engine:
         self.api = Api()
         self.templates_collection = Templates_Collection()
         self.thread_api = Thread(target=self.api.connect)
+        self.thread_api.start()
         self.var = None
         self.state = 0
+        self.camera = pygame.camera.Camera("/dev/video0",(1280,720), "RGB")
 
     def _load_engine_file(self):
         with open('photobooth/json/sequence.json', 'r',encoding='utf-8') as file:
@@ -77,7 +79,7 @@ class Engine:
             vue.set_var(self.var)
             self.var = None
         elif self.type == "camera":
-            vue = Camera(self.surface,template,self.fonts)
+            vue = Camera(self.surface,template,self.fonts,camera = self.camera)
         elif self.type == "preview":
             vue = Preview(self.surface,template,self.fonts)
             vue.load_photo(self.screen_data)
@@ -124,8 +126,16 @@ class Engine:
     def _check_status_api(self):
         if self.api.error :
             self.var = [("error",self.api.error)]
-            self._prerender(self.self.sequences_api["error"])
-
+            self._prerender(self.sequences_api["error"])
+        if self.api.code:
+            self.var = [("site",self.api.site),("code",self.api.code)]
+            self._prerender(self.sequences_api["need_auth"])
+            self.var =[]
+        if self.api.auth == True:
+            self.api.auth = False
+            self.api.code = ''
+            self._restart()
+            
 
     def runtime(self):
         self._check_timer()
