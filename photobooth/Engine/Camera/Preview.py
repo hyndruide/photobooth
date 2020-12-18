@@ -14,7 +14,7 @@ class Preview(Vue):
    
     def load_render(self,screen):
         self.screen_name = screen["vue"]
-        self.photo = ajout_du_logo(self.photo)
+        self.thumbail, self.photo = ajout_du_logo(self.photo)
         self._done = False
 
     def make_render(self):
@@ -24,11 +24,7 @@ class Preview(Vue):
         marge.fill(pygame.Color(self.template.marge_color))
         self._blit_surface(marge, self.template.marge_pos)
 
-        frame = cv2.cvtColor(self.photo, cv2.COLOR_BGR2RGB)
-        frame = np.rot90(frame)
-        frame = cv2.resize(frame, dsize=(540,960), interpolation=cv2.INTER_CUBIC)
-        frame = pygame.surfarray.make_surface(frame)
-        self._blit_surface(frame, self.template.photo_pos)
+        self._blit_surface(self.thumbail, self.template.photo_pos)
         
         self.make_render_text()
 

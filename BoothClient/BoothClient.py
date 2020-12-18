@@ -9,11 +9,12 @@ import string
 
 
 class BoothClient:
-    def __init__(self, url='http://127.0.0.1:8000'):
+    def __init__(self, url='http://192.168.1.23:8000'):
         self.url = url
         self.token = None
         self.client_id = self._get_client_id()
         self.req = ''
+
 
     @staticmethod
     def _checksum(fp):
@@ -144,8 +145,6 @@ class BoothClient:
 
 if __name__ == "__main__":
     photo = BoothClient()
-    r = photo.first_connect()
+    r = photo.connect()
     print(r)
-    while photo.wait_first_connect(r):
-        time.sleep(r['interval'])
-    print("photomaton validé")
+

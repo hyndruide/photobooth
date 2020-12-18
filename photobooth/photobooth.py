@@ -10,6 +10,10 @@ def main():
     args = parser.parse_args()
 
     pygame.init()
+    pygame.mixer.quit()
+    pygame.camera.init()
+    clock = pygame.time.Clock()
+    font = pygame.font.Font(None, 30)
     display_flags = 0
     if args.fullscreen:
         display_flags |= pygame.FULLSCREEN
@@ -18,6 +22,11 @@ def main():
     engine = Engine(fenetre)
     while engine.is_runnig():
         engine.runtime()
+
+        fps = str(int(clock.get_fps()))
+        fps_text = font.render(fps, 1, pygame.Color("white"))
+        fenetre.blit(fps_text, (10,0))
+
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 engine.stop()
@@ -31,6 +40,8 @@ def main():
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_z:
                     engine.next()
-
+        
+        pygame.display.flip()
+        clock.tick(30)
 if __name__ == '__main__':
     main()
