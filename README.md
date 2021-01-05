@@ -1,8 +1,14 @@
 # photobooth
 
+##
+
+prerequis :
+poetry 
+
 ## Comment démarrer ?
 
 ```bash
+git clone https://github.com/hyndruide/photobooth.git
 poetry install
 poetry run photobooth --window
 ```
