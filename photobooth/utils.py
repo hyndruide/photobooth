@@ -62,7 +62,7 @@ def make_paragraphe(text_string, font, color, align):
     height_total = 0
     
     for text in text_array:
-        text_line = font.render(text, 1, color)
+        text_line = font.render(text, True, color)
         w,h = text_line.get_size()
         if width_total < w:
             width_total =  w 

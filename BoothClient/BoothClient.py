@@ -9,7 +9,7 @@ import string
 
 
 class BoothClient:
-    def __init__(self, url='http://192.168.1.23:8000'):
+    def __init__(self, url='https://photo.hyndruide.fr'):
         self.url = url
         self.token = None
         self.client_id = self._get_client_id()
@@ -49,7 +49,7 @@ class BoothClient:
                 "Authorization": f"{self.token['token_type']} {self.token['access_token']}",
             }
 
-            url = f"{self.url}/photo/upload"
+            url = f"{self.url}/api/upload"
 
             files = [("file", fp)]
             with requests.post(url, data=data, files=files, headers=headers) as r:
@@ -57,8 +57,29 @@ class BoothClient:
                     raise ValueError(r.text)
                 return r.json()
 
+    def is_update(self):
+        headers = {
+            "Authorization": f"{self.token['token_type']} {self.token['access_token']}",
+        }
+        url = f"{self.url}/api/is_update"
+        with requests.get(url, headers=headers) as r:
+            if not r.ok:
+                raise ValueError(r.text)
+            if r.json()['update'] == True:
+                return True
+
+    def update(self):
+        headers = {
+            "Authorization": f"{self.token['token_type']} {self.token['access_token']}",
+        }
+        url = f"{self.url}/api/update"
+        with requests.get(url, headers=headers) as r:
+            if not r.ok:
+                raise ValueError(r.text)
+            return r.json()
+
     def first_connect(self):
-        url = f"{self.url}/photobooth/new"
+        url = f"{self.url}/api/new"
         data = {
             "client_id": self.client_id,
         }
@@ -73,7 +94,7 @@ class BoothClient:
             raise RetryError()
 
     def ask_first_connect(self):
-        url = f"{self.url}/photobooth/wait"
+        url = f"{self.url}/api/wait"
         dt = {
                 "grant_type": "",
                 "client_id": self.client_id,
@@ -94,7 +115,7 @@ class BoothClient:
     def connect(self):
         if self.update_token() is False:
             return False
-        url = f"{self.url}/photobooth/connect"
+        url = f"{self.url}/api/connect"
         headers = {
             "Authorization": f"{self.token['token_type']} {self.token['access_token']}",
         }
@@ -141,6 +162,12 @@ class BoothClient:
         if token is None:
             return False
         self.token = token
+
+    def have_auth(self):
+        if self._get_token() == None:
+            return False
+        else:
+            return True
 
 
 if __name__ == "__main__":

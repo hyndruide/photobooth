@@ -103,15 +103,23 @@
         }]
 
     },
-    "pas de connexion": {
+    "pas_connexion": {
         "bg": "BLACK",
         "paragraphe": [{
-            "text": "pas de connexion internet",
-            "align": "center",
-            "size": "normal",
-            "position": ["center", "center"],
-            "color": "ORANGE"
-        }]
+                "text": "pas de connexion internet,",
+                "align": "center",
+                "size": "normal",
+                "position": ["center", "top"],
+                "color": "ORANGE"
+            },
+            {
+                "text": "connecter vous au wifi\nPhotobooth\npour activer votre connexion,",
+                "align": "center",
+                "size": "normal",
+                "position": ["center", "center"],
+                "color": "ORANGE"
+            }
+        ]
 
     },
     "auth": {
@@ -130,6 +138,61 @@
             "color": "ORANGE"
         }]
 
+    },
+    "wait_connexion": {
+        "bg": "BLACK",
+        "paragraphe": [{
+            "text": "Connexion a internet en cours ...",
+            "align": "center",
+            "size": "small",
+            "position": ["center", "top"],
+            "color": "ORANGE"
+        }]
+    },
+    "connexion": {
+        "bg": "BLACK",
+        "paragraphe": [{
+            "text": "connection au reseau wifi\nen cours ...",
+            "align": "center",
+            "size": "normal",
+            "position": ["center", "center"],
+            "color": "ORANGE"
+        }]
+    },
+    "Pas_connexion_bypass": {
+        "bg": "BLACK",
+        "paragraphe": [{
+                "text": "pas de connection internet...",
+                "align": "center",
+                "size": "small",
+                "position": ["center", "top"],
+                "color": "ORANGE"
+            }, {
+                "text": "les photos seront sauvegarder sur l'apareil",
+                "align": "center",
+                "size": "small",
+                "position": ["center", "center"],
+                "color": "ORANGE"
+            },
+            {
+                "text": "Vous pouvez toujours vous connecter\nvia le reseau wifi\nPhotobooth",
+                "align": "center",
+                "size": "small",
+                "position": ["center", "bottom"],
+                "color": "ORANGE"
+            }
+        ]
+    },
+    "maintenance": {
+        "bg": "BLACK",
+        "paragraphe": [{
+            "text": "Photomaton en maintenance",
+            "align": "center",
+            "size": "normal",
+            "position": ["center", "center"],
+            "color": "ORANGE"
+        }]
     }
+
 
 }

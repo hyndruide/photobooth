@@ -6,6 +6,17 @@ from photobooth.Engine.Camera.Preview import Preview
 from photobooth.Engine.Vue.Fonts import Fonts
 from photobooth.Engine.Vue.Template import Templates_Collection
 from BoothClient.Api_Thread import Api
+from .State import State
+from connectionWIFI.connect import (
+    ConnectWifi,
+    NOT_CONNECT,
+    CONNECT,
+    CONNECTED,
+    VALIDATE,
+    BYPASS,
+    VALIDATE_BYP
+)
+
 from threading import Thread
 import numpy
 
@@ -30,11 +41,13 @@ class Engine:
         self._need_update = False
         self.api = Api()
         self.templates_collection = Templates_Collection()
-        self.thread_api = Thread(target=self.api.connect)
-        self.thread_api.start()
+        self.con_wifi = ConnectWifi()
+        self.thread_wifi = Thread(target=self.con_wifi.flask_app, daemon=True)
+        self.thread_wifi.start()
         self.var = None
-        self.state = 0
         self.camera = pygame.camera.Camera("/dev/video0",(1280,720), "RGB")
+        self.state =State(self.sequences,self.sequences_api,self._prerender)
+        self.state.restart()
 
     def _load_engine_file(self):
         with open('photobooth/json/sequence.json', 'r',encoding='utf-8') as file:
@@ -42,24 +55,20 @@ class Engine:
         self.sequences = self.data['sequence']
         self.sequences_api = self.data['api']
 
-    @property
-    def state(self):
-        return self._state
+    # @property
+    # def state(self):
+    #     return self._state
 
-    @state.setter
-    def state(self, value):
-        self._state = value
-        if self._state <= 0:
-            self._state = 0
-        if self._state >= len(self.sequences)-1:
-            self._state = len(self.sequences)-1
-        self._prerender()
+    # @state.setter
+    # def state(self, value):
+    #     self._state = value
+    #     if self._state <= 0:
+    #         self._state = 0
+    #     if self._state >= len(self.sequences)-1:
+    #         self._state = len(self.sequences)-1
+    #     self._prerender()
 
-    def _prerender(self,sequence = None):
-
-        if sequence == None:
-            sequence = self.sequences[self.state]
-
+    def _prerender(self,sequence):
         template = self.templates_collection.load(sequence["vue"])
 
         self._launch_timer()
@@ -96,7 +105,7 @@ class Engine:
 
     def _restart(self):
         self._launch_timer()
-        self.state = 0
+        self.state.restart()
 
     def _launch_timer(self):
         self.tick = pygame.time.get_ticks()
@@ -105,9 +114,10 @@ class Engine:
         if self.screen.is_done() :
             self.screen_data = self.screen.get_data()
             if type(self.screen_data) == str:
-                thread = Thread(target=self.api.send_photo, args=("./photo/" + self.screen_data,), daemon=True)
-                thread.start()
-            self.state = self.state + 1
+                if self.con_wifi.connected == VALIDATE:
+                    thread = Thread(target=self.api.send_photo, args=("./photo/" + self.screen_data,), daemon=True)
+                    thread.start()
+            self.state.next()
 
     def _check_timer(self):
         if self.timer_reset is not False:
@@ -121,26 +131,50 @@ class Engine:
 
     def prev(self):
         if self.screen.prev():
-             self.state = self.state - 1
+             self.state.back()
+
+    def _check_connexion_api(self):
+        if self.con_wifi.buzy == True:
+            self.state.popup("wait_connexion")
+        else :
+            self.state.rm_popup("wait_connexion")
+        if not self.con_wifi.buzy and self.con_wifi.connected == NOT_CONNECT :
+            if self.api.have_auth():
+                self.state.popup("Pas_connexion_bypass")
+                self.con_wifi.connected = VALIDATE_BYP
+            else:
+                self.state.popup("Pas_connexion")
+        if self.con_wifi.connected == CONNECT :
+            self.state.popup("connexion")
+        if self.con_wifi.connected == CONNECTED:
+            self.con_wifi.connected = VALIDATE
+            thread_api = Thread(target=self.api.connect)
+            thread_api.start()
+            self.state.rm_popup("connexion")
+            
+
 
     def _check_status_api(self):
         if self.api.error :
             self.var = [("error",self.api.error)]
-            self._prerender(self.sequences_api["error"])
+            self.state.popup("error")
         if self.api.code:
             self.var = [("site",self.api.site),("code",self.api.code)]
-            self._prerender(self.sequences_api["need_auth"])
+            self.state.popup("need_auth")
             self.var =[]
         if self.api.auth == True:
-            self.api.auth = False
-            self.api.code = ''
-            self._restart()
-            
+            self.state.rm_popup("need_auth")
+        if self.api.maintenance == True:
+            self.state.popup("maintenance")
+        else:
+            self.state.rm_popup("maintenance")
+
 
     def runtime(self):
         self._check_timer()
         self._check_status_vue()
         self.screen.runtime()
+        self._check_connexion_api()
         self._check_status_api()
         self._render()
   

@@ -45,7 +45,29 @@
             "type": "screen_text",
             "vue": "auth",
             "freeze": true
+        },
+        "connexion": {
+            "type": "screen_text",
+            "vue": "connexion",
+            "freeze": true
+        },
+        "wait_connexion": {
+            "type": "screen_text",
+            "vue": "wait_connexion",
+            "freeze": true
+        },
+        "Pas_connexion_bypass": {
+            "type": "screen_text",
+            "vue": "Pas_connexion_bypass"
+        },
+        "maintenance": {
+            "type": "screen_text",
+            "vue": "maintenance",
+            "freeze": true
         }
+
+
+
     }
 
 
